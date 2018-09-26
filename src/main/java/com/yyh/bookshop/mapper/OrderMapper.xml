@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC   
+    "-//mybatis.org//DTD Mapper 3.0//EN"  
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yyh.bookshop.mapper.OrderMapper">
+
+	<resultMap id="queryMap" type="order">
+		<id     property="id" column="id" />
+		<result property="orderId" column="order_id"/>
+		<result property="userId" column="user_id"/>
+		<result property="recName" column="rec_name"/>
+		<result property="address" column="address"/>
+		<result property="phone" column="phone"/>
+		<result property="status" column="status"/>
+		<result property="shipDate" column="shipdate"/>
+		<result property="orderDate" column="orderdate"/>
+		<collection property="orderDetails" ofType="OrderDetail">
+			<id property="id" column="odid"/>
+			<result property="orderId" column="order_id"/>
+			<result property="bookId" column="book_id"/>
+			<result property="num" column="num"/>
+		</collection>
+	</resultMap>
+
+	<insert id="add" parameterType="order">
+		insert into orders(order_id, user_id, rec_name, address, phone, status, shipdate, orderdate)
+		values (#{orderId},#{userId},#{recName},#{address},#{phone},1,#{shipDate},NOW())
+	</insert>
+
+	<select id="queryOrderByUserId" resultMap="queryMap">
+		select o.*,
+		       od.book_id,od.num,
+		       b.id bid,b.name,b.isbn,b.price,b.now_price,b.photo
+		from orders o
+		INNER JOIN orderdetail od on o.order_id=od.order_id
+        INNER JOIN book b on od.book_id = b.id
+        where o.user_id=#{userId}
+	</select>
+
+	<select id="queryOrders" parameterType="String" resultMap="queryMap">
+		select * from orders
+		<where>
+			<if test="condition!=null and condition!=''">
+				rec_name like CONCAT('%',#{condition},'%')
+			</if>
+		</where>
+		order by user_id
+	</select>
+</mapper>

@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC   
+    "-//mybatis.org//DTD Mapper 3.0//EN"  
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yyh.bookshop.mapper.BookMapper">
+
+	<resultMap id="BaseMap" type="book">
+		<id     property="id"       column="id"></id>
+		<result property="superType" column="super_type"></result>
+		<result property="subType" column="sub_type"></result>
+		<result property="name" column="name"></result>
+		<result property="isbn" column="isbn"></result>
+		<result property="introduce" column="introduce"></result>
+		<result property="price" column="price"></result>
+		<result property="nowPrice" column="now_price"></result>
+		<result property="photo" column="photo"></result>
+		<result property="pages" column="pages"></result>
+		<result property="publisher" column="publisher"></result>
+		<result property="author" column="author"></result>
+		<result property="newBook" column="new_book"></result>
+		<result property="saleBook" column="sale_book"></result>
+		<result property="specialBook" column="special_book"></result>
+		<result property="recommendBook" column="recommend_book"></result>
+		<result property="addDate" column="add_date"></result>
+ 	</resultMap>
+
+	<select id="BOOKS" parameterType="book" resultMap="BaseMap">
+		select * from book
+		<where>
+			<if test="superType!=null and superType!=''">
+				and super_type =#{superType}
+			</if>
+			<if test="subType!=null and subType!=''">
+				and sub_type =#{subType}
+			</if>
+			<if test="name!=null and name!=''">
+				and name like CONCAT('%',#{name},'%')
+			</if>
+			<if test="startPrice!=null and startPrice!=''">
+				and now_price >= #{startPrice}
+			</if>
+			<if test="endPrice!=null and endPrice!=''">
+				and now_price &lt;= #{endPrice}
+			</if>
+			<if test="newBook!=null">
+				and new_book =#{newBook}
+			</if>
+			<if test="saleBook!=null">
+				and sale_book =#{saleBook}
+			</if>
+			<if test="specialBook!=null ">
+				and special_book =#{specialBook}
+			</if>
+			<if test="recommendBook!=null ">
+				and recommend_book =#{recommendBook}
+			</if>
+		</where>
+	</select>
+
+	<insert id="add" parameterType="book">
+		insert into book(super_type, sub_type, name, isbn, introduce,
+		price, now_price, photo, pages, publisher, author, new_book,
+		sale_book, special_book, recommend_book, add_date)
+		values (#{superType},#{subType},#{name},#{isbn},#{introduce},
+		        #{price},#{nowPrice},#{photo},#{pages},#{publisher},
+		        #{author},TRUE ,FALSE ,FALSE ,FALSE ,#{addDate})
+	</insert>
+
+	<update id="update" parameterType="book">
+		update book
+		<set>
+			<if test="superType != null and superType != ''">
+				super_type= #{superType},
+			</if>
+			<if test="subType!=null and subType!=''">
+				sub_type= #{subType},
+			</if>
+			<if test="name!=null and name!=''">
+				name= #{name},
+			</if>
+			<if test="isbn!=null and isbn!=''">
+				isbn= #{isbn},
+			</if>
+			<if test="introduce!=null and introduce!=''">
+				introduce= #{introduce},
+			</if>
+			<if test="price!=null and price!=''">
+				price= #{price},
+			</if>
+			<if test="nowPrice!=null and nowPrice!=''">
+				now_price= #{nowPrice},
+			</if>
+			<if test="photo!=null and photo!=''">
+				photo= #{photo},
+			</if>
+			<if test="pages!=null and pages!=''">
+				pages= #{pages},
+			</if>
+			<if test="publisher!=null and publisher!=''">
+				publisher= #{publisher},
+			</if>
+			<if test="author!=null and author!=''">
+				author= #{author},
+			</if>
+			<if test="newBook!=null and newBook!=''">
+				new_book= #{newBook},
+			</if>
+			<if test="saleBook!=null and saleBook!=''">
+				sale_book= #{saleBook},
+			</if>
+			<if test="specialBook!=null and specialBook!=''">
+				special_book= #{specialBook},
+			</if>
+			<if test="recommendBook!=null and recommendBook!=''">
+				recommend_book= #{recommendBook},
+			</if>
+			<if test="addDate!=null and addDate!=''">
+				add_date= #{addDate}
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<delete id="delete" parameterType="Integer">
+		delete from book where id=#{id}
+	</delete>
+
+	<select id="selectByPKID" parameterType="Integer" resultMap="BaseMap">
+		select * from book where id=#{id}
+	</select>
+
+	<select id="selectSaleBook" resultMap="BaseMap">
+		select * from book where sale_book=true order by add_date desc limit #{num}
+	</select>
+
+	<select id="selectRecommendBook" resultMap="BaseMap">
+		select * from book where recommend_book=true order by add_date desc limit #{num}
+	</select>
+
+	<select id="selectByName" resultMap="BaseMap">
+		select * from book
+		<where>
+			<if test="condition!=null and condition!=''">
+				(name like '%${condition}%' or
+				 isbn like '%${condition}%' or
+				 super_type =#{condition}   or
+				 sub_type   =#{condition}   or
+				 publisher  =#{condition}   or
+				 author     =#{condition})
+			</if>
+		</where>
+	</select>
+</mapper>

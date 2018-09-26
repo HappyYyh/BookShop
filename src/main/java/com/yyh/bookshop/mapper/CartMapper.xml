@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC   
+    "-//mybatis.org//DTD Mapper 3.0//EN"  
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yyh.bookshop.mapper.CartMapper">
+
+	<resultMap id="BaseMap" type="cart">
+		<id     property="id" column="id" />
+		<result property="userId" column="user_id"/>
+		<result property="bookId" column="book_id"/>
+		<result property="num" column="num"/>
+	</resultMap>
+
+	<resultMap id="queryCart" type="cart" extends="BaseMap">
+		<association property="book"  javaType="Book">
+			<id     property="id" column="bid" />
+			<result property="name" column="name" />
+			<result property="isbn" column="isbn" />
+			<result property="price" column="price" />
+			<result property="nowPrice" column="now_price" />
+			<result property="photo" column="photo" />
+		</association>
+ 	</resultMap>
+
+	<resultMap id="queryUserAndBook" type="cart" extends="queryCart">
+		<association property="user" javaType="User">
+			<id     property="id" column="uid" />
+			<result property="username" column="username" />
+			<result property="realname" column="realname" />
+			<result property="address" column="address" />
+			<result property="phone" column="phone" />
+		</association>
+	</resultMap>
+
+	
+	<select id="list" resultMap="queryCart">
+         select c.id ,c.num,c.user_id,c.book_id,b.price,b.name,b.isbn,b.now_price,b.photo
+         from cart c
+         inner join book b on c.book_id = b.id
+         where c.user_id=#{userId}
+	</select>
+
+	<select id="queryForOrder" resultMap="queryUserAndBook">
+		select c.id,c.num,c.user_id,c.book_id,b.name,b.isbn,b.now_price,b.photo,u.realname,u.address,u.phone
+		from cart c
+		inner join book b on c.book_id = b.id
+		inner join user u on c.user_id = u.id
+		where c.user_id = #{userId}
+	</select>
+
+	<insert id="add" parameterType="cart">
+		insert into cart (user_id, book_id, num) values (#{userId},#{bookId},#{num});
+	</insert>
+
+	<update id="update" parameterType="cart">
+		update cart set book_id=#{bookId},num =#{num } where id=#{id}
+	</update>
+
+	<select id="selectByBookID" resultMap="BaseMap" >
+		select * from cart where book_id=#{bookId} and user_id=#{userId}
+	</select>
+
+	<delete id="deleteOne">
+		delete from cart where id=#{id}
+	</delete>
+
+	<delete id="deleteAll">
+		delete from cart where user_id=#{userId}
+	</delete>
+</mapper>
